@@ -1,0 +1,71 @@
+name: Build WindowsiOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-ios:
+    name: Build iOS IPA
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Select Xcode Version
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Install Build Prerequisites
+        run: |
+          brew update
+          brew install meson ninja pkg-config xcodegen
+
+      - name: Make Scripts Executable
+        run: |
+          chmod +x ./scripts/*.sh
+
+      - name: Cross-Compile iOS Dependencies
+        run: |
+          ./scripts/build_ios_deps.sh
+
+      - name: Build Core Static Library (libwinvm.a)
+        run: |
+          make -j$(sysctl -n hw.ncpu) ios-lib
+
+      - name: Generate Xcode Project
+        run: |
+          xcodegen generate --spec ios/project.yml
+
+      - name: Compile iOS App (Unsigned)
+        run: |
+          xcodebuild -project ios/WindowsiOS.xcodeproj \
+            -scheme WindowsiOS \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            clean build
+
+      - name: Package into IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/DerivedData/Build/Products/Release-iphoneos/WindowsiOS.app Payload/
+          zip -qr WindowsiOS.ipa Payload
+          rm -rf Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WindowsiOS-ipa
+          path: WindowsiOS.ipa
+          retention-days: 14
