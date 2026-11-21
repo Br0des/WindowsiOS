@@ -2,7 +2,7 @@
 
 # WindowsiOS
 
-**Full Microsoft Windows 11 24H2 ARM64 running at near-native JIT speed on non-jailbroken modern iOS.**  
+**Full Microsoft Windows 11 24H2 ARM64 running at near-native JIT speed on non-jailbroken modern iOS.**
 *Verified end-to-end on the foldable **iPhone Duo** (`iPhone19,4` · Apple A20 Pro · iOS 27 TXM) — without `Hypervisor.framework`.*
 
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL--2.0--or--later-blue.svg)](LICENSE)
@@ -195,6 +195,33 @@ Windows 11 24H2 refuses FDT/DeviceTree boot and demands a compliant ServerReady/
 - `00:02.0` — NVMe 1.4 Controller (`1b36:0010`, Serial `WIN11IOS01`, MSI-X + `hvsparse` backing)
 - `00:03.0` — USB 3.0 xHCI Host Controller (`1b36:000d`, Port 1 HID Boot Keyboard + Port 2 Absolute Tablet)
 - `00:04.0` — Intel ICH6 High Definition Audio (`8086:2668`, Codec `1af4:0022` Stereo Speaker Out + Stereo Mic In)
+
+---
+
+## Windows 11 ARM64 Compatible Disk Images
+
+WindowsiOS is optimized for **Windows 11 Version 24H2 (Build 26100) ARM64**. Below are the direct sources to obtain compatible images:
+
+- **Official Microsoft Windows 11 Arm64 Multi-Edition ISO (Recommended):**
+  [Microsoft Windows 11 Software Download](https://www.microsoft.com/software-download/windows11)  
+  *(Scroll down to "Download Windows 11 Disk Image (ISO) for Arm-based PCs", choose "Windows 11 (multi-edition ISO for Arm64 devices)", select language, and download).*
+
+- **Microsoft Windows Insider Preview ARM64 VHDX:**
+  [Microsoft Windows Insider Preview ARM64 Download](https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewARM64)
+
+- **UUP Dump (Direct ESD / Custom 24H2 ARM64 Builds):**
+  [UUP dump - Windows 11 ARM64 24H2](https://uupdump.net/)
+
+- **Tiny11 ARM64 (Pre-trimmed Community Image):**
+  [NTDEV Tiny11 for ARM64 on Internet Archive](https://archive.org/details/tiny-11-arm-64)
+
+### Preparing the Image:
+Once downloaded, run the provisioning scripts included in this repo:
+```bash
+python3 scripts/provision_windows_arm64.py --iso <path-to-windows11-arm64.iso>
+python3 scripts/optimize_windows_lite.py --image work/windows11.img
+```
+Transfer the generated `work/windows11.img` into the `WindowsiOS` app Documents directory via iTunes/Finder File Sharing or the iOS Files app (`On My iPhone` -> `WindowsiOS`).
 
 ---
 
